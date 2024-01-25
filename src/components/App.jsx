@@ -12,26 +12,39 @@ export class App extends Component {
       { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
     ],
     filter: '',
-    name: '',
-    number: '',
   };
+
   handleAddContact = evt => {
-    evt.preventDefault();
-
     const form = document.querySelector('form');
-
     const nameToAdd = form.elements.name.value;
     const phoneNumber = form.elements.number.value;
+    const contactExist = this.state.contacts.some(
+      contact => contact.name.toLowerCase() === nameToAdd.toLowerCase()
+    );
+    if (nameToAdd === '' && phoneNumber === '') {
+      return;
+    }
+    if (contactExist) {
+      alert('This contact is already on Your list');
+    } else {
+      const newContact = { name: nameToAdd, id: nanoid(), number: phoneNumber };
+      this.setState({ contacts: [...this.state.contacts, newContact] });
+      form.reset();
+    }
+  };
 
-    const newContact = { name: nameToAdd, id: nanoid(), number: phoneNumber };
-    this.setState({ contacts: [...this.state.contacts, newContact] });
-    form.reset();
+  deleteContact = contactId => {
+    const remainingContacts = this.state.contacts.filter(
+      contact => contact.id !== contactId
+    );
+    this.setState({
+      contacts: remainingContacts,
+    });
   };
 
   handleFilter = evt => {
     evt.preventDefault();
     this.setState({ filter: evt.target.value.toLowerCase() });
-    console.log(this.state.filter);
   };
 
   showFilteredContacts() {
@@ -46,8 +59,11 @@ export class App extends Component {
         <Form addContact={this.handleAddContact}></Form>
         <h2>Contacts</h2>
         <Filter contactFilter={this.handleFilter}></Filter>
-        <List showFiltered={this.showFilteredContacts()}></List>
-        ---------------------------------------
+        <List
+          showFiltered={this.showFilteredContacts()}
+          removeContact={this.deleteContact}
+        ></List>
+        -----------------------------------------------------------
       </div>
     );
   }
